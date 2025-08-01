@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { api } from '../api'; // tu Axios configurado
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+import AlertTitle from '@mui/material/AlertTitle';
 
 const Register = () => {
   // 🧠 Guardamos los valores del formulario en el estado
@@ -34,14 +40,25 @@ const Register = () => {
 
   // 🧩 El formulario visual
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Registro</h2>
-      <input name="name" placeholder="Nombre" onChange={handleChange} />
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} />
-      <input type="password" name="password_confirmation" placeholder="Confirmar contraseña" onChange={handleChange} />
-      <button type="submit">Registrarse</button>
-    </form>
+    <div className="auth-container">
+      <section className="auth-form">
+        <form onSubmit={handleSubmit}>
+          <h2>Registro</h2>
+          <TextField id="outlined-basic" onChange={handleChange} label="Nombre" variant="outlined" />
+          <TextField id="outlined-basic" onChange={handleChange} label="Email" variant="outlined" />
+          <TextField id="outlined-basic" onChange={handleChange} label="Contraseña" variant="outlined" />
+          <TextField id="outlined-basic" onChange={handleChange} label="Confirmar contraseña" variant="outlined" />
+          <Button type='submit' variant="contained">Registrarse</Button>
+          <div className='info'>
+            <Alert severity="info">
+              ¿Tienes una cuenta?
+              <AlertTitle><Link to="/login"><strong>Entrar</strong></Link></AlertTitle>
+            </Alert>
+
+          </div>
+        </form>
+      </section>
+    </div>
   );
 };
 

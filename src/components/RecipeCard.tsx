@@ -14,6 +14,9 @@ import ShareIcon from '@mui/icons-material/Share';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { formatDate } from '../utils/formatDate';
 import { useAuth } from '../context/AuthContext';
+import Button from '@mui/material/Button';
+import { api } from '../api';
+import { useEffect, useState } from 'react';
 type Props = {
     recipes?: Recipe[];
 }
@@ -22,6 +25,50 @@ function RecipeCard({ recipes }: Props) {
 
     const { user } = useAuth();
 
+    const [favorites, setFavorites] = useState<number[]>([]);
+
+    useEffect(() => {
+        if (user) {
+            api.get('/favorites')
+                .then(res => {
+                    const favoriteIds = res.data.map((fav: any) => fav.recipeId);
+                    setFavorites(favoriteIds);
+                })
+                .catch(err => console.error('Error cargando favoritos', err));
+        }
+    }, [user]); // Dependencia de user
+
+    const handleFavorite = async (recipeId: number) => {
+        if (!user) {
+            alert("Inicia sesión para agregar a tus favoritos");
+            return;
+        }
+
+        try {
+            console.log("Agregando la receta", recipeId);
+            const response = await api.post('/favorites', { recipe_id: recipeId });
+            
+            // Actualiza el estado local
+            setFavorites(prev => {
+                if (prev.includes(recipeId)) {
+                    return prev.filter(id => id !== recipeId);
+                } else {
+                    return [...prev, recipeId];
+                }
+            });
+
+            if (response.status === 200) {
+                alert("Receta eliminada de favoritos");
+            } else if (response.status === 201) {
+                alert("Receta agregada a favoritos");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("Ocurrió un error");
+        }
+    }
+
+
     return (
         <>
             {recipes?.map((recipe) => (
@@ -29,7 +76,7 @@ function RecipeCard({ recipes }: Props) {
                     <CardHeader
                         avatar={
                             <Avatar sx={{ bgcolor: blue[900] }} aria-label="recipe">
-                                {user?.name.charAt(0).toUpperCase() || '?'}
+                                {recipe?.user?.name.charAt(0).toUpperCase() || '?'}
                             </Avatar>
                         }
                         action={
@@ -52,13 +99,18 @@ function RecipeCard({ recipes }: Props) {
                         </Typography>
                     </CardContent>
                     <CardActions disableSpacing>
-                        <IconButton aria-label="add to favorites">
-                            <FavoriteIcon />
-                        </IconButton>
+                            <IconButton onClick={() => handleFavorite(recipe.id)}  aria-label="add to favorites">
+                                <FavoriteIcon id="icoFav" color= {favorites.includes(recipe.id) ? 'primary' : 'inherit'}/>
+                            </IconButton>
                         <IconButton aria-label="share">
                             <ShareIcon />
                         </IconButton>
+                        {(user?.id ==  recipe?.user?.id) && 
+                        <Button variant="outlined" size="small">
+                            Gestionar
+                        </Button>}
                     </CardActions>
+                    
                 </Card>
             ))}
         </>
