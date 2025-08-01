@@ -31,7 +31,7 @@ function RecipeCard({ recipes }: Props) {
         if (user) {
             api.get('/favorites')
                 .then(res => {
-                    const favoriteIds = res.data.map((fav: any) => fav.recipeId);
+                    const favoriteIds = res.data.data.map((fav: any) => fav.recipeId);
                     setFavorites(favoriteIds);
                 })
                 .catch(err => console.error('Error cargando favoritos', err));
